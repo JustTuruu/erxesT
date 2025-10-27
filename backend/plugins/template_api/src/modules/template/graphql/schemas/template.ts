@@ -12,7 +12,7 @@ export const types = `
     contentType: String
     description: String
     pluginType: String
-    category: String
+    categoryIds: [String]
     status: String
     createdBy: String
     createdAt: Date
@@ -59,7 +59,7 @@ export const inputs = `
     contentType: String
     description: String
     pluginType: String
-    category: String
+    categoryIds: [String]
     status: String
   }
 
@@ -69,7 +69,7 @@ export const inputs = `
     contentType: String
     description: String
     pluginType: String
-    category: String
+    categoryIds: [String]
     status: String
   }
 `;

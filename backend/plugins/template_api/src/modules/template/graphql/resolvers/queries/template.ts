@@ -38,7 +38,7 @@ export const templateQueries = {
     }
 
     if (categoryIds && categoryIds.length > 0) {
-      filter.category = { $in: categoryIds };
+      filter.categoryIds = { $in: categoryIds };
     }
 
     if (contentType) {

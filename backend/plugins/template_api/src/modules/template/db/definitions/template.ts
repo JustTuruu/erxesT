@@ -10,7 +10,7 @@ export interface ITemplate {
   name: string;
   content: string;
   pluginType?: string;
-  category?: string;
+  categoryIds?: string[];
   description?: string;
   contentType?: string;
   relatedTemplate?: IRelatedTemplate[];
@@ -27,7 +27,7 @@ export interface ITemplateInput {
   contentType?: string;
   description?: string;
   pluginType?: string;
-  category?: string;
+  categoryIds?: string[];
   status?: 'active' | 'inactive';
 }
 
@@ -61,7 +61,7 @@ export const templateSchema = new Schema<TemplateDocument>(
     name: { type: String, required: true },
     content: { type: String, required: true },
     pluginType: { type: String },
-    category: { type: String },
+    categoryIds: { type: [String], default: [] },
     description: { type: String },
     contentType: { type: String },
     relatedTemplate: {
