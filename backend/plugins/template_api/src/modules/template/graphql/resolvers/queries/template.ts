@@ -51,7 +51,8 @@ export const templateQueries = {
     const list = await models.Template.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(perPage);
+      .limit(perPage)
+      .lean();
 
     return {
       list,
@@ -85,9 +86,9 @@ export const templateQueries = {
     }
 
     const totalCount = await models.TemplateCategory.countDocuments(filter);
-    const list = await models.TemplateCategory.find(filter).sort({
-      createdAt: -1,
-    });
+    const list = await models.TemplateCategory.find(filter)
+      .sort({ createdAt: -1 })
+      .lean();
 
     return {
       list,

@@ -1,7 +1,6 @@
 export const types = `
   type TemplateVariable {
     name: String
-    type: String
     required: Boolean
     description: String
   }
@@ -9,11 +8,10 @@ export const types = `
   type Template {
     _id: String!
     name: String!
-    content: String!
+    content: String
     contentType: String
-    type: String!
     description: String
-    pluginType: String!
+    pluginType: String
     category: String
     status: String
     createdBy: String
@@ -51,18 +49,16 @@ export const types = `
 export const inputs = `
   input TemplateVariableInput {
     name: String
-    type: String
     required: Boolean
     description: String
   }
 
   input TemplateInput {
     name: String!
-    content: String!
+    content: String
     contentType: String
-    type: String
     description: String
-    pluginType: String!
+    pluginType: String
     category: String
     status: String
   }
@@ -71,7 +67,6 @@ export const inputs = `
     name: String
     content: String
     contentType: String
-    type: String
     description: String
     pluginType: String
     category: String

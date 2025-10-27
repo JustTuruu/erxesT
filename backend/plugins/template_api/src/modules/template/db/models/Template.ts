@@ -7,11 +7,6 @@ import {
   templateSchema,
 } from '../definitions/template';
 
-type ITemplateDocument = Omit<
-  ITemplate,
-  '_id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'
->;
-
 export interface ITemplateModel extends Model<TemplateDocument> {
   getTemplate(_id: string): Promise<TemplateDocument>;
   createTemplate(
@@ -67,7 +62,6 @@ export const loadTemplateClass = () => {
           $set: {
             ...doc,
             updatedBy: user?._id,
-            updatedAt: new Date(),
           },
         },
         { new: true },

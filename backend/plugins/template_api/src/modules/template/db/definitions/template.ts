@@ -9,7 +9,6 @@ export interface ITemplate {
   _id: string;
   name: string;
   content: string;
-  type?: string;
   pluginType?: string;
   category?: string;
   description?: string;
@@ -26,7 +25,6 @@ export interface ITemplateInput {
   name: string;
   content: string;
   contentType?: string;
-  type?: string;
   description?: string;
   pluginType?: string;
   category?: string;
@@ -62,7 +60,6 @@ export const templateSchema = new Schema<TemplateDocument>(
   {
     name: { type: String, required: true },
     content: { type: String, required: true },
-    type: { type: String },
     pluginType: { type: String },
     category: { type: String },
     description: { type: String },
