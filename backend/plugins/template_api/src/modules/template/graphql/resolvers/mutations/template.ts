@@ -32,7 +32,6 @@ export const templateMutations = {
     { _id }: { _id: string },
     { models, req, user }: IContext,
   ) => {
-    const subdomain = getSubdomain(req);
     const template = await models.Template.getTemplate(_id);
 
     if (!template) {
@@ -40,28 +39,55 @@ export const templateMutations = {
     }
 
     const type = template.contentType as string | undefined;
-    const [serviceName, contentType] = (type || '').split(':');
 
-    if (!serviceName || !contentType) {
-      throw new Error(
-        'Invalid or missing contentType on template. Expected format "plugin:resource"',
-      );
+    // If no contentType or invalid format, just return the template
+    if (!type || !type.includes(':')) {
+      return {
+        _id: template._id,
+        name: template.name,
+        content: template.content,
+        contentType: template.contentType,
+      };
     }
 
-    const result = await sendTRPCMessage({
-      pluginName: serviceName,
-      method: 'mutation',
-      module: 'templates',
-      action: 'useTemplate',
-      input: {
-        template,
-        contentType,
-        currentUser: user,
-        subdomain,
-      },
-      defaultValue: null,
-    });
+    const subdomain = getSubdomain(req);
+    const [serviceName, contentType] = type.split(':');
 
-    return result;
+    if (!serviceName || !contentType) {
+      return {
+        _id: template._id,
+        name: template.name,
+        content: template.content,
+        contentType: template.contentType,
+      };
+    }
+
+    // Try to send TRPC message, fallback to template if fails
+    try {
+      const result = await sendTRPCMessage({
+        subdomain,
+        pluginName: serviceName,
+        method: 'mutation',
+        module: 'templates',
+        action: 'useTemplate',
+        input: {
+          template,
+          contentType,
+          currentUser: user,
+          subdomain,
+        },
+        defaultValue: null,
+      });
+
+      return result || template;
+    } catch (error) {
+      // If TRPC fails, just return the template
+      return {
+        _id: template._id,
+        name: template.name,
+        content: template.content,
+        contentType: template.contentType,
+      };
+    }
   },
 };

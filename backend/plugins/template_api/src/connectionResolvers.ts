@@ -26,13 +26,13 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  const schemaWithClass = loadTemplateClass();
+  const schemaWithClass = loadTemplateClass(models);
   models.Template = db.model<TemplateDocument, ITemplateModel>(
     'templates',
     schemaWithClass,
   );
 
-  const categorySchemaWithClass = loadTemplateCategoryClass();
+  const categorySchemaWithClass = loadTemplateCategoryClass(models);
   models.TemplateCategory = db.model<
     TemplateCategoryDocument,
     ITemplateCategoryModel

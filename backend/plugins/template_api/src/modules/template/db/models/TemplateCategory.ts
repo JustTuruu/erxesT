@@ -59,7 +59,6 @@ export class TemplateCategoryClass {
       {
         $set: {
           ...doc,
-          updatedAt: new Date(),
         },
       },
     );
@@ -81,7 +80,9 @@ export class TemplateCategoryClass {
   }
 }
 
-export const loadTemplateCategoryClass = (): Schema<TemplateCategoryDocument, ITemplateCategoryModel> => {
+export const loadTemplateCategoryClass = (
+  models,
+): Schema<TemplateCategoryDocument, ITemplateCategoryModel> => {
   templateCategorySchema.loadClass(TemplateCategoryClass);
   return templateCategorySchema;
 };

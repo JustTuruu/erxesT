@@ -6,6 +6,7 @@ import {
   TemplateDocument,
   templateSchema,
 } from '../definitions/template';
+import { IModels } from '~/connectionResolvers';
 
 export interface ITemplateModel extends Model<TemplateDocument> {
   getTemplate(_id: string): Promise<TemplateDocument>;
@@ -21,13 +22,10 @@ export interface ITemplateModel extends Model<TemplateDocument> {
   removeTemplate(_id: string): Promise<TemplateDocument>;
 }
 
-export const loadTemplateClass = () => {
+export const loadTemplateClass = (models: IModels) => {
   class Template {
-    public static async getTemplate(
-      this: ITemplateModel,
-      _id: string,
-    ): Promise<TemplateDocument> {
-      const template = await this.findOne({ _id });
+    public static async getTemplate(_id: string): Promise<TemplateDocument> {
+      const template = await models.Template.findOne({ _id });
       if (!template) {
         throw new Error('Template not found');
       }
@@ -53,10 +51,9 @@ export const loadTemplateClass = () => {
       doc: Partial<ITemplateInput>,
       user?: IUserDocument,
     ): Promise<TemplateDocument> {
-      const template = await this.findOne({ _id });
-      if (!template) throw new Error('Template not found');
+      await models.Template.getTemplate(_id);
 
-      const updated = await this.findOneAndUpdate(
+      const updated = await models.Template.findOneAndUpdate(
         { _id },
         {
           $set: {

@@ -38,6 +38,7 @@ export const getRelatedContent = async (
   try {
     // Send TRPC message to target plugin
     const result = await sendTRPCMessage({
+      subdomain,
       pluginName: serviceName,
       method: 'query',
       module: 'templates',
