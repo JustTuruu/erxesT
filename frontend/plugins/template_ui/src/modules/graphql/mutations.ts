@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 // Template mutations
 export const ADD_TEMPLATE = gql`
-  mutation templateAdd($input: TemplateInput!) {
-    templateAdd(input: $input) {
+  mutation templateAdd($doc: TemplateInput!) {
+    templateAdd(doc: $doc) {
       _id
       name
       contentType
@@ -13,8 +13,8 @@ export const ADD_TEMPLATE = gql`
 `;
 
 export const EDIT_TEMPLATE = gql`
-  mutation templateEdit($_id: String!, $input: TemplateEditInput!) {
-    templateEdit(_id: $_id, input: $input) {
+  mutation templateEdit($_id: String!, $doc: TemplateEditInput!) {
+    templateEdit(_id: $_id, doc: $doc) {
       _id
       name
       contentType
@@ -25,7 +25,10 @@ export const EDIT_TEMPLATE = gql`
 
 export const REMOVE_TEMPLATE = gql`
   mutation templateRemove($_id: String!) {
-    templateRemove(_id: $_id)
+    templateRemove(_id: $_id) {
+      _id
+      name
+    }
   }
 `;
 

@@ -1,18 +1,13 @@
 import React from 'react';
 import { Button } from 'erxes-ui';
-import { IconRefresh, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 
 interface IProps {
-  onRefresh: () => void;
   onSearch?: (value: string) => void;
   onAddTemplate: () => void;
 }
 
-const TemplatesHeader: React.FC<IProps> = ({
-  onRefresh,
-  onSearch,
-  onAddTemplate,
-}) => {
+const TemplatesHeader: React.FC<IProps> = ({ onAddTemplate }) => {
   console.log('TemplatesHeader rendered', { onAddTemplate });
 
   return (
@@ -21,10 +16,6 @@ const TemplatesHeader: React.FC<IProps> = ({
         <h2 className="text-lg font-semibold">Templates</h2>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={onRefresh}>
-          <IconRefresh size={16} />
-          Refresh
-        </Button>
         <Button
           size="sm"
           onClick={() => {

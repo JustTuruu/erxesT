@@ -52,7 +52,7 @@ export interface ICategoryListResponse {
 }
 
 export interface ITemplatesGetTypesResponse {
-  templatesGetTypes: string[];
+  templatesGetTypes: Array<{ value: string; label: string }>;
 }
 
 export interface ITemplateFilter {

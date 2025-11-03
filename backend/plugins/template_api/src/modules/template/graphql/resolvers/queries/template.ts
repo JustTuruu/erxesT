@@ -19,16 +19,24 @@ export const templateQueries = {
       page = 1,
       perPage = 20,
       contentType,
+      status,
     }: {
       searchValue?: string;
       categoryIds?: string[];
       page?: number;
       perPage?: number;
       contentType?: string;
+      status?: string;
     },
     { models }: IContext,
   ) => {
-    const filter: any = { status: { $ne: 'inactive' } };
+    const filter: any = {};
+
+    if (!status) {
+      filter.status = { $ne: 'inactive' };
+    } else {
+      filter.status = status;
+    }
 
     if (searchValue) {
       filter.$or = [

@@ -4,6 +4,7 @@ import TemplatesHeader from './TemplatesHeader';
 import TemplatesList from './TemplatesList';
 import TemplateForm from './TemplateForm';
 import { useTemplates } from '../hooks/useTemplates';
+import { PageContainer } from 'erxes-ui';
 
 export const Templates: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -23,10 +24,6 @@ export const Templates: React.FC = () => {
       ...filter,
     },
   });
-
-  const handleRefresh = () => {
-    refetch();
-  };
 
   const handleSearch = (searchValue: string) => {
     setFilter({ ...filter, searchValue });
@@ -58,9 +55,8 @@ export const Templates: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <PageContainer>
       <TemplatesHeader
-        onRefresh={handleRefresh}
         onSearch={handleSearch}
         onAddTemplate={handleAddTemplate}
       />
@@ -82,7 +78,7 @@ export const Templates: React.FC = () => {
           onSuccess={handleFormSuccess}
         />
       )}
-    </div>
+    </PageContainer>
   );
 };
 

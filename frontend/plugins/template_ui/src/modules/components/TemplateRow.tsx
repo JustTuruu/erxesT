@@ -7,8 +7,7 @@ import {
   IconCheck,
 } from '@tabler/icons-react';
 import { ITemplate } from '../types/types';
-import { useTemplateRemove } from '../hooks/useTemplateRemove';
-import { useTemplateUse } from '../hooks/useTemplateUse';
+import { useTemplateRemove, useTemplateUse } from '../hooks/useTemplates';
 interface IProps {
   template: ITemplate;
   onRefetch: () => void;
@@ -25,7 +24,7 @@ const TemplateRow: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
   const { useTemplate } = useTemplateUse();
 
   const handleRemove = () => {
-    if (window.confirm(`Are you sure you want to remove "${template.name}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
       removeTemplate({
         variables: { _id: template._id },
       });
@@ -46,8 +45,32 @@ const TemplateRow: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
   };
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log('Export template:', template._id);
+    const exportData = {
+      name: template.name,
+      content: template.content,
+      contentType: template.contentType,
+      description: template.description,
+      pluginType: template.pluginType,
+      categoryIds: template.categoryIds,
+      status: template.status,
+    };
+
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    // Create temporary download link
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${template.name
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase()}_template.json`;
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (

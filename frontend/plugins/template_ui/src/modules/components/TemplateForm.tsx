@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Button, Input, Label, Textarea } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { ITemplate, ITemplateInput } from '../types/types';
-import { useTemplateTypes, useCategories } from '../hooks/useTemplates';
-import { useTemplateAdd } from '../hooks/useTemplateAdd';
-import { useTemplateEdit } from '../hooks/useTemplateEdit';
+import {
+  useTemplateTypes,
+  useCategories,
+  useTemplateAdd,
+  useTemplateEdit,
+} from '../hooks/useTemplates';
 interface IProps {
   template?: ITemplate;
   onClose: () => void;
@@ -53,7 +56,7 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
       return;
     }
 
-    const input: ITemplateInput = {
+    const doc: ITemplateInput = {
       ...formData,
       categoryIds: formData.categoryIds?.length
         ? formData.categoryIds
@@ -67,12 +70,12 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
       editTemplate({
         variables: {
           _id: template._id,
-          input,
+          doc,
         },
       });
     } else {
       addTemplate({
-        variables: { input },
+        variables: { doc },
       });
     }
   };
@@ -129,9 +132,9 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="">Select content type</option>
-                {contentTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
+                {contentTypes.map((type: any) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
                   </option>
                 ))}
               </select>

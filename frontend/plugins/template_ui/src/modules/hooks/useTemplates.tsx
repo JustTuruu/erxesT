@@ -103,3 +103,107 @@ export const useCategories = (
 };
 
 // Mutation hooks
+export const useTemplateAdd = (options?: MutationHookOptions) => {
+  const [addTemplate, { loading, error }] = useMutation(ADD_TEMPLATE, {
+    ...options,
+    refetchQueries: ['templateList'],
+    awaitRefetchQueries: true,
+    onCompleted: (data, clientOptions) => {
+      toast({
+        title: 'Success',
+        description: 'Template added successfully',
+      });
+      options?.onCompleted?.(data, clientOptions);
+    },
+    onError: (e) => {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return { addTemplate, loading, error };
+};
+
+export const useTemplateEdit = (options?: MutationHookOptions) => {
+  const [editTemplate, { loading, error }] = useMutation(EDIT_TEMPLATE, {
+    ...options,
+    refetchQueries: ['templateList'],
+    onCompleted: (data, clientOptions) => {
+      toast({
+        title: 'Success',
+        description: 'Template updated successfully',
+      });
+      options?.onCompleted?.(data, clientOptions);
+    },
+    onError: (e) => {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return { editTemplate, loading, error };
+};
+
+export const useTemplateRemove = (options?: MutationHookOptions) => {
+  const [removeTemplate, { loading, error }] = useMutation(REMOVE_TEMPLATE, {
+    ...options,
+    update(cache, { data }) {
+      // Remove from cache immediately
+      if (data?.templateRemove?._id) {
+        cache.evict({
+          id: cache.identify({
+            __typename: 'Template',
+            _id: data.templateRemove._id,
+          }),
+        });
+        cache.gc();
+      }
+    },
+    refetchQueries: ['templateList'],
+    awaitRefetchQueries: true,
+    onCompleted: (data, clientOptions) => {
+      toast({
+        title: 'Success',
+        description: 'Template deleted successfully',
+      });
+      options?.onCompleted?.(data, clientOptions);
+    },
+    onError: (e) => {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return { removeTemplate, loading, error };
+};
+
+export const useTemplateUse = (options?: MutationHookOptions) => {
+  const [useTemplate, { loading, error }] = useMutation(USE_TEMPLATE, {
+    ...options,
+    onCompleted: (data, clientOptions) => {
+      toast({
+        title: 'Success',
+        description: 'Template used successfully',
+      });
+      options?.onCompleted?.(data, clientOptions);
+    },
+    onError: (e) => {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return { useTemplate, loading, error };
+};

@@ -88,7 +88,7 @@ function TemplateItem({ name, Icon }: { name: string; Icon: Icon }) {
             className="px-2 flex min-w-0 justify-start"
             asChild
           >
-            <a href="/templates">
+            <a href="/template">
               <Icon className="text-accent-foreground flex-shrink-0" />
               <TextOverflowTooltip
                 className="font-sans font-semibold normal-case flex-1 min-w-0"

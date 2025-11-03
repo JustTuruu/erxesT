@@ -32,7 +32,9 @@ export const ThemeEffect = () => {
       if (theme === 'system') {
         const newThemeValue = e.matches ? 'dark' : 'light';
         html.classList.remove(newThemeValue === 'light' ? 'dark' : 'light');
-        html.classList.add(newThemeValue);
+        if (newThemeValue) {
+          html.classList.add(newThemeValue);
+        }
         html.style.colorScheme = newThemeValue;
       }
     };
@@ -58,7 +60,9 @@ export const ThemeEffect = () => {
     document.head.appendChild(css);
 
     html.classList.remove(themeValue === 'light' ? 'dark' : 'light');
-    html.classList.add(themeValue);
+    if (themeValue) {
+      html.classList.add(themeValue);
+    }
     // Ensures that native elements respect the theme, e.g. the scrollbar.
     html.style.colorScheme = themeValue;
 
