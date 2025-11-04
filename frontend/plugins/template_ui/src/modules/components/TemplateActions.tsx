@@ -1,15 +1,21 @@
 import React from 'react';
 import { Button } from 'erxes-ui';
-import { IconTrash, IconDownload, IconCheck } from '@tabler/icons-react';
+import {
+  IconTrash,
+  IconDownload,
+  IconCheck,
+  IconEdit,
+} from '@tabler/icons-react';
 import { ITemplate } from '../types/types';
 import { useTemplateRemove, useTemplateUse } from '../hooks/useTemplates';
 
 interface IProps {
   template: ITemplate;
   onRefetch: () => void;
+  onEdit: (template: ITemplate) => void;
 }
 
-const TemplateActions: React.FC<IProps> = ({ template, onRefetch }) => {
+const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
   const { removeTemplate } = useTemplateRemove({
     onCompleted: () => {
       onRefetch();
@@ -17,6 +23,10 @@ const TemplateActions: React.FC<IProps> = ({ template, onRefetch }) => {
   });
 
   const { useTemplate } = useTemplateUse();
+
+  const handleEdit = () => {
+    onEdit(template);
+  };
 
   const handleRemove = () => {
     if (window.confirm(`Are you sure you want to remove "${template.name}"?`)) {
@@ -71,6 +81,9 @@ const TemplateActions: React.FC<IProps> = ({ template, onRefetch }) => {
         title="Use Template"
       >
         <IconCheck size={16} />
+      </Button>
+      <Button variant="ghost" size="sm" onClick={handleEdit} title="Edit">
+        <IconEdit size={16} />
       </Button>
       <Button variant="ghost" size="sm" onClick={handleExport} title="Export">
         <IconDownload size={16} />

@@ -12,6 +12,7 @@ interface IProps {
   perPage: number;
   onPageChange: (page: number) => void;
   onRefetch: () => void;
+  onEdit: (template: ITemplate) => void;
 }
 
 const TemplatesList: React.FC<IProps> = ({
@@ -23,6 +24,7 @@ const TemplatesList: React.FC<IProps> = ({
   perPage,
   onPageChange,
   onRefetch,
+  onEdit,
 }) => {
   if (loading) {
     return (
@@ -92,7 +94,11 @@ const TemplatesList: React.FC<IProps> = ({
               >
                 {template.status || 'active'}
               </span>
-              <TemplateActions template={template} onRefetch={onRefetch} />
+              <TemplateActions
+                template={template}
+                onRefetch={onRefetch}
+                onEdit={onEdit}
+              />
             </div>
           </div>
         ))}
