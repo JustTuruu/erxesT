@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ApolloError } from '@apollo/client';
 import { ITemplate } from '../types/types';
 import TemplateActions from './TemplateActions';
+import { TextOverflowTooltip } from 'erxes-ui';
 
 interface IProps {
   templates: ITemplate[];
   loading: boolean;
   error?: ApolloError;
   totalCount: number;
-  page: number;
-  perPage: number;
-  onPageChange: (page: number) => void;
+  hasNextPage: boolean;
+  onLoadMore: () => void;
   onRefetch: () => void;
   onEdit: (template: ITemplate) => void;
 }
@@ -20,13 +20,42 @@ const TemplatesList: React.FC<IProps> = ({
   loading,
   error,
   totalCount,
-  page,
-  perPage,
-  onPageChange,
+  hasNextPage,
+  onLoadMore,
   onRefetch,
   onEdit,
 }) => {
-  if (loading) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sentinelRef.current || loading || !hasNextPage) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage) {
+          onLoadMore();
+        }
+      },
+      {
+        root: scrollContainerRef.current,
+        rootMargin: '100px',
+        threshold: 0.1,
+      },
+    );
+
+    observerRef.current.observe(sentinelRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [loading, hasNextPage, onLoadMore]);
+
+  if (loading && templates.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-muted-foreground">Loading templates...</p>
@@ -51,7 +80,10 @@ const TemplatesList: React.FC<IProps> = ({
   }
 
   return (
-    <div className="flex-1 overflow-auto p-6 bg-sidebar">
+    <div
+      ref={scrollContainerRef}
+      className="flex-1 overflow-auto p-6 bg-sidebar"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {templates.map((template) => (
           <div
@@ -60,14 +92,19 @@ const TemplatesList: React.FC<IProps> = ({
           >
             {/* Header */}
             <div className="p-4 border-b">
-              <h3 className="font-semibold truncate">{template.name}</h3>
+              <TextOverflowTooltip
+                value={template.name}
+                className="font-semibold text-base block"
+              />
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs text-muted-foreground">
                   {template.contentType}
                 </span>
                 {template.pluginType && (
                   <>
-                    <span className="text-xs text-muted-foreground">•</span>
+                    <span className="text-xs text-muted-foreground">
+                      {'->'}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                       {template.pluginType}
                     </span>
@@ -104,30 +141,20 @@ const TemplatesList: React.FC<IProps> = ({
         ))}
       </div>
 
-      {totalCount > perPage && (
-        <div className="mt-6 bg-card px-4 py-3 rounded-lg border">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Showing {(page - 1) * perPage + 1} to{' '}
-              {Math.min(page * perPage, totalCount)} of {totalCount} results
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => onPageChange(page - 1)}
-                disabled={page === 1}
-                className="px-3 py-1 text-sm border rounded hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => onPageChange(page + 1)}
-                disabled={page * perPage >= totalCount}
-                className="px-3 py-1 text-sm border rounded hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+      {hasNextPage && (
+        <div ref={sentinelRef} className="mt-6 flex justify-center">
+          {loading ? (
+            <p className="text-muted-foreground">Loading more...</p>
+          ) : (
+            <div className="h-10" />
+          )}
+        </div>
+      )}
+
+      {/* Show total count */}
+      {!hasNextPage && totalCount > 0 && (
+        <div className="mt-6 text-center text-sm text-muted-foreground">
+          All {totalCount} templates loaded
         </div>
       )}
     </div>

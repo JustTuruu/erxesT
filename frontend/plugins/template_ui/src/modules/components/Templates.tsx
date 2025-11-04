@@ -7,25 +7,55 @@ import { useTemplates } from '../hooks/useTemplates';
 import { PageContainer } from 'erxes-ui';
 
 export const Templates: React.FC = () => {
-  const [page, setPage] = useState(1);
-  const [perPage] = useState(20);
+  const [limit] = useState(20);
   const [filter, setFilter] = useState<ITemplateFilter>({});
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ITemplate | null>(
     null,
   );
 
-  const { templates, totalCount, loading, error, refetch } = useTemplates({
+  const {
+    templates,
+    totalCount,
+    loading,
+    error,
+    refetch,
+    fetchMore,
+    pageInfo,
+  } = useTemplates({
     variables: {
-      page,
-      perPage,
+      limit,
       ...filter,
     },
   });
 
   const handleSearch = (searchValue: string) => {
     setFilter({ ...filter, searchValue });
-    setPage(1);
+  };
+
+  const handleLoadMore = () => {
+    if (!pageInfo?.hasNextPage || !pageInfo?.endCursor) return;
+
+    fetchMore({
+      variables: {
+        limit,
+        cursor: pageInfo.endCursor,
+        ...filter,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return {
+          templateList: {
+            ...fetchMoreResult.templateList,
+            list: [
+              ...prev.templateList.list,
+              ...fetchMoreResult.templateList.list,
+            ],
+            pageInfo: fetchMoreResult.templateList.pageInfo,
+          },
+        };
+      },
+    });
   };
 
   const handleEdit = (template: ITemplate) => {
@@ -47,9 +77,8 @@ export const Templates: React.FC = () => {
         loading={loading}
         error={error}
         totalCount={totalCount}
-        page={page}
-        perPage={perPage}
-        onPageChange={setPage}
+        hasNextPage={pageInfo?.hasNextPage || false}
+        onLoadMore={handleLoadMore}
         onRefetch={refetch}
         onEdit={handleEdit}
       />

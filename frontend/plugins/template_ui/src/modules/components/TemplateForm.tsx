@@ -116,8 +116,8 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.content) {
-      alert('Name and Content are required');
+    if (!formData.name) {
+      alert('Name is required');
       return;
     }
 
@@ -125,7 +125,11 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
       await editTemplate({
         variables: {
           _id: template._id,
-          doc: formData,
+          doc: {
+            name: formData.name,
+            description: formData.description,
+            status: formData.status,
+          },
         },
       });
     } else {
@@ -156,92 +160,87 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
 
         <div className="flex-1 overflow-y-auto p-6 bg-sidebar">
           {isEditMode ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  placeholder="Template name"
-                />
+            <div className="space-y-6">
+              <div className="bg-card border rounded-lg p-4">
+                <h3 className="text-sm font-semibold mb-4 pb-3 border-b">
+                  Information
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Name</p>
+                    <p className="text-sm font-medium">{template?.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Description
+                    </p>
+                    <p className="text-sm">{template?.description || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Status</p>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          template?.status === 'active'
+                            ? 'bg-green-500'
+                            : 'bg-red-500'
+                        }`}
+                      />
+                      <span className="text-sm capitalize">
+                        {template?.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Content Type
-                </label>
-                <input
-                  type="text"
-                  name="contentType"
-                  value={formData.contentType}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  placeholder="e.g., sales:product"
-                />
-              </div>
+              {/* Edit Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                    placeholder="Template name"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Content <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="content"
-                  value={formData.content}
-                  onChange={handleInputChange}
-                  required
-                  rows={10}
-                  className="w-full px-3 py-2 border rounded-md bg-background font-mono text-sm"
-                  placeholder="Template content"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                    placeholder="Template description"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  placeholder="Template description"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Plugin Type
-                </label>
-                <input
-                  type="text"
-                  name="pluginType"
-                  value={formData.pluginType}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  placeholder="e.g., sales"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </form>
+            </div>
           ) : (
             <div className="max-w-xl mx-auto">
               <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary/50 transition-colors bg-card">

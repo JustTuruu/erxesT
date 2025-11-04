@@ -58,6 +58,7 @@ export const relatedTemplate = new Schema(
 
 export const templateSchema = new Schema<TemplateDocument>(
   {
+    _id: { type: String },
     name: { type: String, required: true },
     content: { type: String, required: true },
     pluginType: { type: String },
@@ -82,8 +83,16 @@ export const templateSchema = new Schema<TemplateDocument>(
       index: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true, _id: false },
 );
+
+templateSchema.pre('save', function (next) {
+  if (!this._id) {
+    this._id =
+      Math.random().toString(36).substring(2) + Date.now().toString(36);
+  }
+  next();
+});
 
 templateSchema.index({ status: 1, createdAt: -1 });
 templateSchema.index({ createdBy: 1, status: 1 });

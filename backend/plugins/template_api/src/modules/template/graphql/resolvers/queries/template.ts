@@ -1,4 +1,6 @@
 import { IContext } from '../../../../../connectionResolvers';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { TemplateDocument } from '../../../db/definitions/template';
 
 export const templateQueries = {
   templatesGetTypes: async (
@@ -13,23 +15,21 @@ export const templateQueries = {
 
   templateList: async (
     _parent: undefined,
-    {
-      searchValue,
-      categoryIds,
-      page = 1,
-      perPage = 20,
-      contentType,
-      status,
-    }: {
+    params: {
       searchValue?: string;
       categoryIds?: string[];
       page?: number;
       perPage?: number;
+      limit?: number;
+      cursor?: string;
       contentType?: string;
       status?: string;
     },
     { models }: IContext,
   ) => {
+    const { searchValue, categoryIds, contentType, status, page, perPage } =
+      params;
+
     const filter: any = {};
 
     if (!status) {
@@ -53,24 +53,24 @@ export const templateQueries = {
       filter.contentType = contentType;
     }
 
-    const totalCount = await models.Template.countDocuments(filter);
-    const skip = (page - 1) * perPage;
+    // Support both cursor-based and offset-based pagination
+    const paginationParams = {
+      limit: params.limit || params.perPage || 20,
+      cursor: params.cursor,
+      orderBy: { createdAt: -1 as const, _id: -1 as const },
+    };
 
-    const list = await models.Template.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(perPage)
-      .lean();
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<TemplateDocument>({
+        model: models.Template,
+        params: paginationParams,
+        query: filter,
+      });
 
     return {
       list,
       totalCount,
-      pageInfo: {
-        hasNextPage: skip + perPage < totalCount,
-        hasPreviousPage: page > 1,
-        startCursor: null,
-        endCursor: null,
-      },
+      pageInfo,
     };
   },
 

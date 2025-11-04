@@ -4,6 +4,8 @@ export const TEMPLATE_LIST = gql`
   query templateList(
     $page: Int
     $perPage: Int
+    $limit: Int
+    $cursor: String
     $searchValue: String
     $status: String
     $categoryIds: [String]
@@ -12,6 +14,8 @@ export const TEMPLATE_LIST = gql`
     templateList(
       page: $page
       perPage: $perPage
+      limit: $limit
+      cursor: $cursor
       searchValue: $searchValue
       status: $status
       categoryIds: $categoryIds
@@ -29,6 +33,11 @@ export const TEMPLATE_LIST = gql`
         createdBy
         createdAt
         updatedAt
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
       totalCount
     }

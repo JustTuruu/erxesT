@@ -44,10 +44,12 @@ export const useTemplates = (
 
   const templates = data?.templateList?.list || [];
   const totalCount = data?.templateList?.totalCount || 0;
+  const pageInfo = data?.templateList?.pageInfo;
 
   return {
     templates,
     totalCount,
+    pageInfo,
     loading,
     error,
     refetch,

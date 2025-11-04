@@ -10,6 +10,7 @@ export interface ITemplate {
   createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  cursor?: string;
 }
 
 export interface ITemplateInput {
@@ -20,6 +21,11 @@ export interface ITemplateInput {
   pluginType?: string;
   categoryIds?: string[];
   status?: string;
+}
+
+export interface IPageInfo {
+  hasNextPage: boolean;
+  endCursor?: string | null;
 }
 
 export interface ITemplateCategory {
@@ -37,6 +43,7 @@ export interface ITemplateListResponse {
   templateList: {
     list: ITemplate[];
     totalCount: number;
+    pageInfo: IPageInfo;
   };
 }
 
