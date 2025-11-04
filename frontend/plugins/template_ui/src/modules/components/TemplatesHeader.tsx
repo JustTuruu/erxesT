@@ -1,30 +1,22 @@
 import React from 'react';
 import { Button } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import { IconUpload } from '@tabler/icons-react';
 
 interface IProps {
   onSearch?: (value: string) => void;
-  onAddTemplate: () => void;
+  onUpload: () => void;
 }
 
-const TemplatesHeader: React.FC<IProps> = ({ onAddTemplate }) => {
-  console.log('TemplatesHeader rendered', { onAddTemplate });
-
+const TemplatesHeader: React.FC<IProps> = ({ onUpload }) => {
   return (
-    <div className="flex items-center justify-between p-4 border-b">
+    <div className="flex items-center justify-between p-4 border-b bg-sidebar">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold">Templates</h2>
       </div>
       <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          onClick={() => {
-            console.log('Add Template clicked!');
-            onAddTemplate();
-          }}
-        >
-          <IconPlus size={16} />
-          Add Template
+        <Button size="sm" onClick={onUpload}>
+          <IconUpload size={16} />
+          Upload Template
         </Button>
       </div>
     </div>

@@ -1,21 +1,15 @@
 import React from 'react';
 import { Button } from 'erxes-ui';
-import {
-  IconTrash,
-  IconEdit,
-  IconDownload,
-  IconCheck,
-} from '@tabler/icons-react';
+import { IconTrash, IconDownload, IconCheck } from '@tabler/icons-react';
 import { ITemplate } from '../types/types';
 import { useTemplateRemove, useTemplateUse } from '../hooks/useTemplates';
 
 interface IProps {
   template: ITemplate;
   onRefetch: () => void;
-  onEdit: (template: ITemplate) => void;
 }
 
-const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
+const TemplateActions: React.FC<IProps> = ({ template, onRefetch }) => {
   const { removeTemplate } = useTemplateRemove({
     onCompleted: () => {
       onRefetch();
@@ -39,10 +33,6 @@ const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
         contentType: template.contentType,
       },
     });
-  };
-
-  const handleEdit = () => {
-    onEdit(template);
   };
 
   const handleExport = () => {
@@ -84,9 +74,6 @@ const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
       </Button>
       <Button variant="ghost" size="sm" onClick={handleExport} title="Export">
         <IconDownload size={16} />
-      </Button>
-      <Button variant="ghost" size="sm" onClick={handleEdit} title="Edit">
-        <IconEdit size={16} />
       </Button>
       <Button
         variant="ghost"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ITemplateFilter, ITemplate } from '../types/types';
+import { ITemplateFilter } from '../types/types';
 import TemplatesHeader from './TemplatesHeader';
 import TemplatesList from './TemplatesList';
 import TemplateForm from './TemplateForm';
@@ -10,12 +10,7 @@ export const Templates: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage] = useState(20);
   const [filter, setFilter] = useState<ITemplateFilter>({});
-  const [showForm, setShowForm] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<
-    ITemplate | undefined
-  >();
-
-  console.log('Templates component rendered', { showForm, editingTemplate });
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   const { templates, totalCount, loading, error, refetch } = useTemplates({
     variables: {
@@ -30,35 +25,11 @@ export const Templates: React.FC = () => {
     setPage(1);
   };
 
-  const handleFilterChange = (newFilter: Partial<ITemplateFilter>) => {
-    setFilter({ ...filter, ...newFilter });
-    setPage(1);
-  };
-
-  const handleAddTemplate = () => {
-    setEditingTemplate(undefined);
-    setShowForm(true);
-  };
-
-  const handleEditTemplate = (template: ITemplate) => {
-    setEditingTemplate(template);
-    setShowForm(true);
-  };
-
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingTemplate(undefined);
-  };
-
-  const handleFormSuccess = () => {
-    refetch();
-  };
-
   return (
     <PageContainer>
       <TemplatesHeader
-        onSearch={handleSearch}
-        onAddTemplate={handleAddTemplate}
+        onSearch={setFilter}
+        onUpload={() => setShowUploadForm(true)}
       />
       <TemplatesList
         templates={templates}
@@ -69,13 +40,11 @@ export const Templates: React.FC = () => {
         perPage={perPage}
         onPageChange={setPage}
         onRefetch={refetch}
-        onEdit={handleEditTemplate}
       />
-      {showForm && (
+      {showUploadForm && (
         <TemplateForm
-          template={editingTemplate}
-          onClose={handleCloseForm}
-          onSuccess={handleFormSuccess}
+          onClose={() => setShowUploadForm(false)}
+          onSuccess={refetch}
         />
       )}
     </PageContainer>
