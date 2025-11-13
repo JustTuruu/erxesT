@@ -1,16 +1,34 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const ADD_PIPELINE_LABEL = gql`
-  mutation SalesPipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
-    salesPipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation SalesPipelineLabelsAdd(
+    $name: String!
+    $colorCode: String!
+    $pipelineId: String!
+  ) {
+    salesPipelineLabelsAdd(
+      name: $name
+      colorCode: $colorCode
+      pipelineId: $pipelineId
+    ) {
       _id
     }
   }
 `;
 
 export const EDIT_PIPELINE_LABEL = gql`
-  mutation SalesPipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
-    salesPipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation SalesPipelineLabelsEdit(
+    $_id: String!
+    $name: String!
+    $colorCode: String!
+    $pipelineId: String!
+  ) {
+    salesPipelineLabelsEdit(
+      _id: $_id
+      name: $name
+      colorCode: $colorCode
+      pipelineId: $pipelineId
+    ) {
       _id
     }
   }
@@ -124,5 +142,21 @@ export const UPDATE_PIPELINE_ORDER = gql`
     salesPipelinesUpdateOrder(orders: $orders) {
       _id
     }
+  }
+`;
+
+export const SAVE_PIPELINE_AS_TEMPLATE = gql`
+  mutation salesPipelineSaveAsTemplate(
+    $_id: String!
+    $name: String!
+    $description: String
+    $status: String
+  ) {
+    salesPipelineSaveAsTemplate(
+      _id: $_id
+      name: $name
+      description: $description
+      status: $status
+    )
   }
 `;

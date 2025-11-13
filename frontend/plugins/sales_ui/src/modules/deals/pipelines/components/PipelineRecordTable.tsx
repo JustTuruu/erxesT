@@ -23,6 +23,7 @@ import {
   IconSettings,
   IconTrash,
   IconUser,
+  IconTemplate,
 } from '@tabler/icons-react';
 import {
   usePipelineArchive,
@@ -30,10 +31,12 @@ import {
   usePipelineEdit,
   usePipelineRemove,
   usePipelines,
+  usePipelineSaveAsTemplate,
 } from '@/deals/boards/hooks/usePipelines';
 
 import { IPipeline } from '@/deals/types/pipelines';
-import React from 'react';
+import React, { useState } from 'react';
+import { SaveAsTemplateForm } from '@/deals/boards/components/SaveAsTemplateForm';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -43,11 +46,15 @@ export const PipelineMoreColumnCell = ({
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const [, setOpen] = useQueryState('pipelineId');
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
+  const { savePipelineAsTemplate, loading: saveTemplateLoading } =
+    usePipelineSaveAsTemplate();
 
-  const { _id, status } = cell.row.original;
+  const { _id, status, name } = cell.row.original;
 
   const onRemove = () => {
     confirm({
@@ -101,50 +108,82 @@ export const PipelineMoreColumnCell = ({
     });
   };
 
+  const onSaveAsTemplate = (data: {
+    name: string;
+    description?: string;
+    status?: string;
+  }) => {
+    savePipelineAsTemplate({
+      variables: {
+        _id,
+        name: data.name,
+        description: data.description,
+        status: data.status,
+      },
+    }).then(() => {
+      setTemplateDialogOpen(false);
+    });
+  };
+
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setOpen(_id);
-              }}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
-            <Command.Item value="duplicate" onSelect={onDuplicate}>
-              <IconCopy /> Duplicate
-            </Command.Item>
-            <Command.Item value="archive" onSelect={onArchive}>
-              {status === 'active' ? (
-                <>
-                  <IconArchive /> Archive
-                </>
-              ) : (
-                <>
-                  <IconArrowBack /> Unarchive
-                </>
-              )}
-            </Command.Item>
-            <Command.Item value="productConfig">
-              <IconSettings /> Product config
-            </Command.Item>
-            <Command.Item
-              disabled={removeLoading}
-              value="remove"
-              onSelect={onRemove}
-            >
-              <IconTrash /> Delete
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <>
+      <Popover>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item
+                value="edit"
+                onSelect={() => {
+                  setOpen(_id);
+                }}
+              >
+                <IconEdit /> Edit
+              </Command.Item>
+              <Command.Item value="duplicate" onSelect={onDuplicate}>
+                <IconCopy /> Duplicate
+              </Command.Item>
+              <Command.Item value="archive" onSelect={onArchive}>
+                {status === 'active' ? (
+                  <>
+                    <IconArchive /> Archive
+                  </>
+                ) : (
+                  <>
+                    <IconArrowBack /> Unarchive
+                  </>
+                )}
+              </Command.Item>
+              <Command.Item
+                value="saveAsTemplate"
+                onSelect={() => setTemplateDialogOpen(true)}
+              >
+                <IconTemplate /> Save as Template
+              </Command.Item>
+              <Command.Item value="productConfig">
+                <IconSettings /> Product config
+              </Command.Item>
+              <Command.Item
+                disabled={removeLoading}
+                value="remove"
+                onSelect={onRemove}
+              >
+                <IconTrash /> Delete
+              </Command.Item>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      <SaveAsTemplateForm
+        open={templateDialogOpen}
+        onOpenChange={setTemplateDialogOpen}
+        onSubmit={onSaveAsTemplate}
+        loading={saveTemplateLoading}
+        title="Save Pipeline as Template"
+      />
+    </>
   );
 };
 

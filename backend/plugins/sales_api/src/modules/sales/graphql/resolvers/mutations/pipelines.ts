@@ -162,4 +162,74 @@ export const pipelineMutations = {
 
     return copied;
   },
+
+  /**
+   * Save pipeline as template - saves only the specific pipeline as template
+   */
+  async salesPipelineSaveAsTemplate(
+    _root,
+    {
+      _id,
+      name,
+      description,
+      status,
+    }: { _id: string; name: string; description?: string; status?: string },
+    { models, subdomain, user }: IContext,
+  ) {
+    const pipeline = await models.Pipelines.getPipeline(_id);
+
+    // Get all stages for this pipeline
+    const stages = await models.Stages.find({ pipelineId: _id }).lean();
+
+    // Create template content
+    const templateContent = {
+      pipeline: {
+        name: pipeline.name,
+        visibility: pipeline.visibility,
+        bgColor: pipeline.bgColor,
+        startDate: pipeline.startDate,
+        endDate: pipeline.endDate,
+        metric: pipeline.metric,
+        hackScoringType: pipeline.hackScoringType,
+        isCheckDate: pipeline.isCheckDate,
+        isCheckUser: pipeline.isCheckUser,
+        isCheckDepartment: pipeline.isCheckDepartment,
+        numberConfig: pipeline.numberConfig,
+        numberSize: pipeline.numberSize,
+        nameConfig: pipeline.nameConfig,
+        stages: stages.map((stage: IStageDocument) => ({
+          name: stage.name,
+          probability: stage.probability,
+          status: stage.status,
+          order: stage.order,
+        })),
+      },
+    };
+
+    // Save to template_api via TRPC
+    const template = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'template',
+      method: 'mutation',
+      module: 'templates',
+      action: 'add',
+      input: {
+        doc: {
+          name,
+          content: JSON.stringify(templateContent),
+          contentType: 'sales-pipeline',
+          pluginType: 'sales',
+          description:
+            description || `Template created from pipeline: ${pipeline.name}`,
+          status: status || 'active',
+        },
+      },
+    });
+
+    return {
+      success: true,
+      templateId: template._id,
+      message: 'Pipeline saved as template successfully',
+    };
+  },
 };

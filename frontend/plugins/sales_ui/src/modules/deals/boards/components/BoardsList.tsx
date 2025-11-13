@@ -1,11 +1,16 @@
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconTemplate } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
-import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
-import { useEffect, useMemo } from 'react';
+import {
+  useBoardRemove,
+  useBoards,
+  useBoardSaveAsTemplate,
+} from '@/deals/boards/hooks/useBoards';
+import { useEffect, useMemo, useState } from 'react';
 
 import { BoardForm } from './BoardForm';
 import { IBoard } from '@/deals/types/boards';
+import { SaveAsTemplateForm } from './SaveAsTemplateForm';
 
 export const BoardsList = () => {
   const navigate = useNavigate();
@@ -61,10 +66,13 @@ export const BoardsList = () => {
 const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const [activeBoardId] = useQueryState('activeBoardId');
   const [, setBoardId] = useQueryState('boardId');
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   const isActive = board._id === activeBoardId;
 
   const { removeBoard, loading: removeLoading } = useBoardRemove();
+  const { saveBoardAsTemplate, loading: saveTemplateLoading } =
+    useBoardSaveAsTemplate();
 
   const { confirm } = useConfirm();
 
@@ -76,35 +84,68 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
     });
   };
 
+  const onSaveAsTemplate = (data: {
+    name: string;
+    description?: string;
+    status?: string;
+  }) => {
+    saveBoardAsTemplate({
+      variables: {
+        _id: board._id,
+        name: data.name,
+        description: data.description,
+        status: data.status,
+      },
+    }).then(() => {
+      setTemplateDialogOpen(false);
+    });
+  };
+
   return (
-    <div className="group relative flex items-center justify-between w-full hover:bg-gray-100 transition-colors duration-200">
-      <Link
-        className="w-full"
-        to={`/settings/deals?activeBoardId=${board._id}`}
-      >
-        <Sidebar.MenuButton className="h-auto" isActive={isActive}>
-          {board.name}
-        </Sidebar.MenuButton>
-      </Link>
-      <div
-        className={`absolute right-0 top-0 bottom-0 flex items-center gap-1 opacity-0 ${
-          isActive ? 'bg-primary/20' : 'bg-gray-100'
-        } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
-      >
-        <button
-          onClick={() => setBoardId(board._id)}
-          className="text-gray-400 hover:text-blue-500 p-1 rounded transition-colors"
+    <>
+      <div className="group relative flex items-center justify-between w-full hover:bg-gray-100 transition-colors duration-200">
+        <Link
+          className="w-full"
+          to={`/settings/deals?activeBoardId=${board._id}`}
         >
-          <IconPencil className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => onRemove(board._id)}
-          disabled={removeLoading}
-          className="text-gray-400 hover:text-red-500 p-1 rounded transition-colors"
+          <Sidebar.MenuButton className="h-auto" isActive={isActive}>
+            {board.name}
+          </Sidebar.MenuButton>
+        </Link>
+        <div
+          className={`absolute right-0 top-0 bottom-0 flex items-center gap-1 opacity-0 ${
+            isActive ? 'bg-primary/20' : 'bg-gray-100'
+          } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
         >
-          <IconTrash className="w-4 h-4" />
-        </button>
+          <button
+            onClick={() => setTemplateDialogOpen(true)}
+            className="text-gray-400 hover:text-green-500 p-1 rounded transition-colors"
+            title="Save as Template"
+          >
+            <IconTemplate className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setBoardId(board._id)}
+            className="text-gray-400 hover:text-blue-500 p-1 rounded transition-colors"
+          >
+            <IconPencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onRemove(board._id)}
+            disabled={removeLoading}
+            className="text-gray-400 hover:text-red-500 p-1 rounded transition-colors"
+          >
+            <IconTrash className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-    </div>
+      <SaveAsTemplateForm
+        open={templateDialogOpen}
+        onOpenChange={setTemplateDialogOpen}
+        onSubmit={onSaveAsTemplate}
+        loading={saveTemplateLoading}
+        title="Save Board as Template"
+      />
+    </>
   );
 };

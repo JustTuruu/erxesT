@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const commonParamsDef = `
   $name: String!,
@@ -27,5 +27,21 @@ export const EDIT_BOARD = gql`
 export const REMOVE_BOARD = gql`
   mutation salesBoardsRemove($_id: String!) {
     salesBoardsRemove(_id: $_id)
+  }
+`;
+
+export const SAVE_BOARD_AS_TEMPLATE = gql`
+  mutation salesBoardsSaveAsTemplate(
+    $_id: String!
+    $name: String!
+    $description: String
+    $status: String
+  ) {
+    salesBoardsSaveAsTemplate(
+      _id: $_id
+      name: $name
+      description: $description
+      status: $status
+    )
   }
 `;

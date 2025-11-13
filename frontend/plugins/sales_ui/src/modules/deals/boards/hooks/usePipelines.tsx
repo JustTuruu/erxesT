@@ -5,6 +5,7 @@ import {
   EDIT_PIPELINE,
   REMOVE_PIPELINE,
   UPDATE_PIPELINE_ORDER,
+  SAVE_PIPELINE_AS_TEMPLATE,
 } from '@/deals/graphql/mutations/PipelinesMutations';
 import {
   EnumCursorDirection,
@@ -265,4 +266,38 @@ export const usePipelineDetail = (
   );
 
   return { pipelineDetail: data?.salesPipelineDetail, loading, error };
+};
+
+export const usePipelineSaveAsTemplate = (
+  options?: MutationHookOptions<{ salesPipelineSaveAsTemplate: any }>,
+) => {
+  const [savePipelineAsTemplate, { loading, error }] = useMutation(
+    SAVE_PIPELINE_AS_TEMPLATE,
+    {
+      ...options,
+      variables: {
+        ...options?.variables,
+      },
+      onCompleted: (...args) => {
+        toast({
+          title: 'Successfully saved pipeline as template',
+          variant: 'default',
+        });
+        options?.onCompleted?.(...args);
+      },
+      onError: (err) => {
+        toast({
+          title: 'Error',
+          description: err.message || 'Save as template failed',
+          variant: 'destructive',
+        });
+      },
+    },
+  );
+
+  return {
+    savePipelineAsTemplate,
+    loading,
+    error,
+  };
 };
