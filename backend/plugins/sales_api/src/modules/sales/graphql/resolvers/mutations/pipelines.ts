@@ -207,7 +207,7 @@ export const pipelineMutations = {
     };
 
     // Save to template_api via TRPC
-    const template = await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
       pluginName: 'template',
       method: 'mutation',
@@ -225,6 +225,16 @@ export const pipelineMutations = {
         },
       },
     });
+
+    if (!response || response.status === 'error') {
+      throw new Error(response?.errorMessage || 'Failed to create template');
+    }
+
+    const template = response.data;
+
+    if (!template || !template._id) {
+      throw new Error('Template was not created properly');
+    }
 
     return {
       success: true,

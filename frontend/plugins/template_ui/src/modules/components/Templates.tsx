@@ -8,7 +8,7 @@ import { PageContainer } from 'erxes-ui';
 
 export const Templates: React.FC = () => {
   const [limit] = useState(20);
-  const [filter, setFilter] = useState<ITemplateFilter>({});
+  const [filter, setFilter] = useState<ITemplateFilter>({ status: 'all' });
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ITemplate | null>(
     null,
@@ -25,12 +25,19 @@ export const Templates: React.FC = () => {
   } = useTemplates({
     variables: {
       limit,
-      ...filter,
+      searchValue: filter.searchValue,
+      categoryIds: filter.categoryIds,
+      contentType: filter.contentType,
+      ...(filter.status !== 'all' && { status: filter.status }),
     },
   });
 
   const handleSearch = (searchValue: string) => {
     setFilter({ ...filter, searchValue });
+  };
+
+  const handleStatusChange = (status: string) => {
+    setFilter({ ...filter, status });
   };
 
   const handleLoadMore = () => {
@@ -40,7 +47,10 @@ export const Templates: React.FC = () => {
       variables: {
         limit,
         cursor: pageInfo.endCursor,
-        ...filter,
+        searchValue: filter.searchValue,
+        categoryIds: filter.categoryIds,
+        contentType: filter.contentType,
+        ...(filter.status !== 'all' && { status: filter.status }),
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
@@ -71,6 +81,8 @@ export const Templates: React.FC = () => {
       <TemplatesHeader
         onSearch={() => {}}
         onUpload={() => setShowUploadForm(true)}
+        onStatusChange={handleStatusChange}
+        currentStatus={filter.status}
       />
       <TemplatesList
         templates={templates}

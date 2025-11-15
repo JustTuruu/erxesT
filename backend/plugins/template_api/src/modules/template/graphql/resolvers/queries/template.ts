@@ -32,9 +32,7 @@ export const templateQueries = {
 
     const filter: any = {};
 
-    if (!status) {
-      filter.status = { $ne: 'inactive' };
-    } else {
+    if (status) {
       filter.status = status;
     }
 
