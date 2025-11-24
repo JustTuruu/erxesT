@@ -1,16 +1,15 @@
 import { IconPencil, IconTrash, IconTemplate } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
-import {
-  useBoardRemove,
-  useBoards,
-  useBoardSaveAsTemplate,
-} from '@/deals/boards/hooks/useBoards';
+import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
 import { useEffect, useMemo, useState } from 'react';
+import {
+  SaveAsTemplateForm,
+  useSaveAsTemplate,
+} from 'ui-modules/modules/template';
 
 import { BoardForm } from './BoardForm';
 import { IBoard } from '@/deals/types/boards';
-import { SaveAsTemplateForm } from './SaveAsTemplateForm';
 
 export const BoardsList = () => {
   const navigate = useNavigate();
@@ -71,8 +70,13 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const isActive = board._id === activeBoardId;
 
   const { removeBoard, loading: removeLoading } = useBoardRemove();
-  const { saveBoardAsTemplate, loading: saveTemplateLoading } =
-    useBoardSaveAsTemplate();
+
+  const { saveAsTemplate, loading: saveTemplateLoading } = useSaveAsTemplate({
+    contentType: 'sales:board',
+    onSuccess: () => {
+      setTemplateDialogOpen(false);
+    },
+  });
 
   const { confirm } = useConfirm();
 
@@ -89,16 +93,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
     description?: string;
     status?: string;
   }) => {
-    saveBoardAsTemplate({
-      variables: {
-        _id: board._id,
-        name: data.name,
-        description: data.description,
-        status: data.status,
-      },
-    }).then(() => {
-      setTemplateDialogOpen(false);
-    });
+    saveAsTemplate(data, board._id);
   };
 
   return (
@@ -145,6 +140,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
         onSubmit={onSaveAsTemplate}
         loading={saveTemplateLoading}
         title="Save Board as Template"
+        entityName="board"
       />
     </>
   );

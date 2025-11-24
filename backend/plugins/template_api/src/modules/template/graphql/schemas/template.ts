@@ -85,5 +85,6 @@ export const mutations = `
   templateAdd(doc: TemplateInput!): Template
   templateEdit(_id: String!, doc: TemplateEditInput!): Template
   templateRemove(_id: String!): Template
-  templateUse(_id: String!): JSON
+  templateUse(_id: String!, contentType: String, relTypeId: String): JSON
+  templateSaveFrom(sourceId: String!, contentType: String!, name: String!, description: String, status: String): JSON
 `;

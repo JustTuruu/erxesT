@@ -46,7 +46,7 @@ export const mutations = `
   salesBoardsAdd(${mutationParams}): SalesBoard
   salesBoardsEdit(_id: String!, ${mutationParams}): SalesBoard
   salesBoardsRemove(_id: String!): JSON
-  salesBoardsSaveAsTemplate(_id: String!, name: String!, description: String, status: String): JSON
   salesBoardItemUpdateTimeTracking(_id: String!, status: String!, timeSpent: Int!, startDate: String): JSON
   salesBoardItemsSaveForGanttTimeline(items: JSON, links: JSON): String
+  salesBoardsUseTemplate(templateId: String!): JSON
 `;

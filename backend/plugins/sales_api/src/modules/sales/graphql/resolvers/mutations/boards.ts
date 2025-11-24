@@ -113,100 +113,25 @@ export const boardMutations = {
   },
 
   /**
-   * Save board as template - saves board and all its pipelines as template
+   * Create board from template
    */
-  async salesBoardsSaveAsTemplate(
+  async salesBoardsUseTemplate(
     _root,
-    {
-      _id,
-      name,
-      description,
-      status,
-    }: { _id: string; name: string; description?: string; status?: string },
-    { models, subdomain, user }: IContext,
+    { templateId }: { templateId: string },
+    { subdomain }: IContext,
   ) {
-    const board = await models.Boards.getBoard(_id);
-
-    // Get all pipelines for this board
-    const pipelines = await models.Pipelines.find({ boardId: _id }).lean();
-
-    // For each pipeline, get its stages
-    const pipelinesWithStages = await Promise.all(
-      pipelines.map(async (pipeline: IPipelineDocument) => {
-        const stages = await models.Stages.find({
-          pipelineId: pipeline._id,
-        }).lean();
-
-        return {
-          ...pipeline,
-          stages,
-        };
-      }),
-    );
-
-    // Create template content
-    const templateContent = {
-      board: {
-        name: board.name,
-      },
-      pipelines: pipelinesWithStages.map((pipeline: any) => ({
-        name: pipeline.name,
-        visibility: pipeline.visibility,
-        bgColor: pipeline.bgColor,
-        startDate: pipeline.startDate,
-        endDate: pipeline.endDate,
-        metric: pipeline.metric,
-        hackScoringType: pipeline.hackScoringType,
-        isCheckDate: pipeline.isCheckDate,
-        isCheckUser: pipeline.isCheckUser,
-        isCheckDepartment: pipeline.isCheckDepartment,
-        numberConfig: pipeline.numberConfig,
-        numberSize: pipeline.numberSize,
-        nameConfig: pipeline.nameConfig,
-        order: pipeline.order,
-        stages: pipeline.stages.map((stage: IStageDocument) => ({
-          name: stage.name,
-          probability: stage.probability,
-          status: stage.status,
-          order: stage.order,
-        })),
-      })),
-    };
-
-    // Save to template_api via TRPC
-    const response = await sendTRPCMessage({
+    const result = await sendTRPCMessage({
       subdomain,
       pluginName: 'template',
       method: 'mutation',
       module: 'templates',
-      action: 'add',
+      action: 'use',
       input: {
-        doc: {
-          name,
-          content: JSON.stringify(templateContent),
-          contentType: 'sales-board',
-          pluginType: 'sales',
-          description:
-            description || `Template created from board: ${board.name}`,
-          status: status || 'active',
-        },
+        _id: templateId,
+        contentType: 'sales:board',
       },
     });
 
-    if (!response || response.status === 'error') {
-      throw new Error(response?.errorMessage || 'Failed to create template');
-    }
-
-    const template = response.data;
-
-    if (!template || !template._id) {
-      throw new Error('Template was not created properly');
-    }
-
-    return {
-      success: true,
-      templateId: template._id,
-      message: 'Board and all pipelines saved as template successfully',
-    };
+    return result;
   },
 };

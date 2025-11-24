@@ -19,6 +19,7 @@ interface SaveAsTemplateFormProps {
   }) => void;
   loading?: boolean;
   title?: string;
+  entityName?: string; // "board", "pipeline", etc.
 }
 
 export const SaveAsTemplateForm = ({
@@ -27,6 +28,7 @@ export const SaveAsTemplateForm = ({
   onSubmit,
   loading = false,
   title = 'Save as Template',
+  entityName = 'item',
 }: SaveAsTemplateFormProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -85,7 +87,7 @@ export const SaveAsTemplateForm = ({
                 id="template-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter template name"
+                placeholder={`Enter template name for ${entityName}`}
                 required
                 disabled={loading}
               />

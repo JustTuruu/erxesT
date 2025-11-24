@@ -29,7 +29,11 @@ export const templateMutations = {
 
   templateUse: async (
     _parent: undefined,
-    { _id }: { _id: string },
+    {
+      _id,
+      contentType,
+      relTypeId,
+    }: { _id: string; contentType?: string; relTypeId?: string },
     { models, req, user }: IContext,
   ) => {
     const template = await models.Template.getTemplate(_id);
@@ -38,10 +42,11 @@ export const templateMutations = {
       throw new Error('Template not found');
     }
 
-    const type = template.contentType as string | undefined;
+    const fullContentType = (contentType || template.contentType) as
+      | string
+      | undefined;
 
-    // If no contentType or invalid format, just return the template
-    if (!type || !type.includes(':')) {
+    if (!fullContentType || !fullContentType.includes(':')) {
       return {
         _id: template._id,
         name: template.name,
@@ -51,9 +56,9 @@ export const templateMutations = {
     }
 
     const subdomain = getSubdomain(req);
-    const [serviceName, contentType] = type.split(':');
+    const [serviceName] = fullContentType.split(':');
 
-    if (!serviceName || !contentType) {
+    if (!serviceName) {
       return {
         _id: template._id,
         name: template.name,
@@ -72,16 +77,15 @@ export const templateMutations = {
         action: 'useTemplate',
         input: {
           template,
-          contentType,
+          contentType: fullContentType,
           currentUser: user,
-          subdomain,
+          relTypeId,
         },
         defaultValue: null,
       });
 
       return result || template;
     } catch (error) {
-      // If TRPC fails, just return the template
       return {
         _id: template._id,
         name: template.name,
@@ -89,5 +93,76 @@ export const templateMutations = {
         contentType: template.contentType,
       };
     }
+  },
+
+  templateSaveFrom: async (
+    _parent: undefined,
+    {
+      sourceId,
+      contentType,
+      name,
+      description,
+      status,
+    }: {
+      sourceId: string;
+      contentType: string;
+      name: string;
+      description?: string;
+      status?: string;
+    },
+    { models, req, user }: IContext,
+  ) => {
+    if (!contentType || !contentType.includes(':')) {
+      throw new Error('Invalid contentType format. Expected: plugin:type');
+    }
+
+    const subdomain = getSubdomain(req);
+    const [pluginName] = contentType.split(':');
+
+    if (!pluginName) {
+      throw new Error('Invalid contentType format. Expected: plugin:type');
+    }
+
+    // Call source plugin via TRPC to get template data
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName,
+      method: 'mutation',
+      module: 'templates',
+      action: 'saveAsTemplate',
+      input: {
+        sourceId,
+        contentType,
+        name,
+        description,
+        status,
+        currentUser: user,
+      },
+    });
+
+    if (!result || result.status === 'error') {
+      throw new Error(result?.errorMessage || 'Failed to save as template');
+    }
+
+    // Create template with data from source plugin
+    const template = await models.Template.createTemplate(
+      {
+        name,
+        content: result.data.content,
+        contentType,
+        pluginType: pluginName,
+        description: description || result.data.description,
+        status: 'active',
+      },
+      user,
+    );
+
+    return {
+      status: 'success',
+      data: {
+        templateId: template._id,
+        message: 'Template saved successfully',
+      },
+    };
   },
 };

@@ -1,5 +1,6 @@
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
+import { templateTrpcRouter } from '@/sales/trpc/template';
 
 import { initTRPC } from '@trpc/server';
 
@@ -10,6 +11,10 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
-export const appRouter = t.mergeRouters(dealTrpcRouter, posTrpcRouter);
+export const appRouter = t.mergeRouters(
+  dealTrpcRouter,
+  posTrpcRouter,
+  templateTrpcRouter,
+);
 
 export type AppRouter = typeof appRouter;

@@ -7,11 +7,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
  * @param subdomain - Current subdomain
  * @returns Array of related content items
  *
- * @example
- * const content = await getRelatedContent({
- *   contentType: 'sales:deal',
- *   filters: { stageId: '123' }
- * }, 'tenant1');
  */
 export const getRelatedContent = async (
   data: any,
@@ -51,13 +46,6 @@ export const getRelatedContent = async (
       },
       defaultValue: [],
     });
-
-    console.log(
-      `[getRelatedContent] Retrieved ${
-        result?.length || 0
-      } items from ${serviceName}`,
-      { subdomain, contentType },
-    );
 
     return result || [];
   } catch (error) {
@@ -105,11 +93,6 @@ export const getRelatedContentsBatch = async (
 
     // Flatten all results into single array
     const flattenedResults = results.flat();
-
-    console.log(
-      `[getRelatedContentsBatch] Retrieved ${flattenedResults.length} total items from ${contentTypes.length} sources`,
-      { subdomain, contentTypes },
-    );
 
     return flattenedResults;
   } catch (error) {

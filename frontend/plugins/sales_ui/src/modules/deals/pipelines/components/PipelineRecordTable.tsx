@@ -31,12 +31,14 @@ import {
   usePipelineEdit,
   usePipelineRemove,
   usePipelines,
-  usePipelineSaveAsTemplate,
 } from '@/deals/boards/hooks/usePipelines';
+import {
+  SaveAsTemplateForm,
+  useSaveAsTemplate,
+} from 'ui-modules/modules/template';
 
 import { IPipeline } from '@/deals/types/pipelines';
 import React, { useState } from 'react';
-import { SaveAsTemplateForm } from '@/deals/boards/components/SaveAsTemplateForm';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -51,8 +53,13 @@ export const PipelineMoreColumnCell = ({
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
-  const { savePipelineAsTemplate, loading: saveTemplateLoading } =
-    usePipelineSaveAsTemplate();
+
+  const { saveAsTemplate, loading: saveTemplateLoading } = useSaveAsTemplate({
+    contentType: 'sales:pipeline',
+    onSuccess: () => {
+      setTemplateDialogOpen(false);
+    },
+  });
 
   const { _id, status, name } = cell.row.original;
 
@@ -113,16 +120,7 @@ export const PipelineMoreColumnCell = ({
     description?: string;
     status?: string;
   }) => {
-    savePipelineAsTemplate({
-      variables: {
-        _id,
-        name: data.name,
-        description: data.description,
-        status: data.status,
-      },
-    }).then(() => {
-      setTemplateDialogOpen(false);
-    });
+    saveAsTemplate(data, _id);
   };
 
   return (
@@ -182,6 +180,7 @@ export const PipelineMoreColumnCell = ({
         onSubmit={onSaveAsTemplate}
         loading={saveTemplateLoading}
         title="Save Pipeline as Template"
+        entityName="pipeline"
       />
     </>
   );

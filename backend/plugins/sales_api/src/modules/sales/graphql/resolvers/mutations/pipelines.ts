@@ -164,82 +164,27 @@ export const pipelineMutations = {
   },
 
   /**
-   * Save pipeline as template - saves only the specific pipeline as template
+   * Create pipeline from template
    */
-  async salesPipelineSaveAsTemplate(
+  async salesPipelinesUseTemplate(
     _root,
-    {
-      _id,
-      name,
-      description,
-      status,
-    }: { _id: string; name: string; description?: string; status?: string },
-    { models, subdomain, user }: IContext,
+    { templateId, boardId }: { templateId: string; boardId?: string },
+    { models, user, subdomain }: IContext,
   ) {
-    const pipeline = await models.Pipelines.getPipeline(_id);
-
-    // Get all stages for this pipeline
-    const stages = await models.Stages.find({ pipelineId: _id }).lean();
-
-    // Create template content
-    const templateContent = {
-      pipeline: {
-        name: pipeline.name,
-        visibility: pipeline.visibility,
-        bgColor: pipeline.bgColor,
-        startDate: pipeline.startDate,
-        endDate: pipeline.endDate,
-        metric: pipeline.metric,
-        hackScoringType: pipeline.hackScoringType,
-        isCheckDate: pipeline.isCheckDate,
-        isCheckUser: pipeline.isCheckUser,
-        isCheckDepartment: pipeline.isCheckDepartment,
-        numberConfig: pipeline.numberConfig,
-        numberSize: pipeline.numberSize,
-        nameConfig: pipeline.nameConfig,
-        stages: stages.map((stage: IStageDocument) => ({
-          name: stage.name,
-          probability: stage.probability,
-          status: stage.status,
-          order: stage.order,
-        })),
-      },
-    };
-
-    // Save to template_api via TRPC
-    const response = await sendTRPCMessage({
+    // Call templateUse mutation from template_api which will delegate back to us via TRPC
+    const result = await sendTRPCMessage({
       subdomain,
       pluginName: 'template',
       method: 'mutation',
       module: 'templates',
-      action: 'add',
+      action: 'use',
       input: {
-        doc: {
-          name,
-          content: JSON.stringify(templateContent),
-          contentType: 'sales-pipeline',
-          pluginType: 'sales',
-          description:
-            description || `Template created from pipeline: ${pipeline.name}`,
-          status: status || 'active',
-        },
+        _id: templateId,
+        contentType: 'sales:pipeline',
+        boardId,
       },
     });
 
-    if (!response || response.status === 'error') {
-      throw new Error(response?.errorMessage || 'Failed to create template');
-    }
-
-    const template = response.data;
-
-    if (!template || !template._id) {
-      throw new Error('Template was not created properly');
-    }
-
-    return {
-      success: true,
-      templateId: template._id,
-      message: 'Pipeline saved as template successfully',
-    };
+    return result;
   },
 };
