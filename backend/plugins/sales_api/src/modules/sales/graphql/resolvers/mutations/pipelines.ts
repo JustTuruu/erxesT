@@ -169,7 +169,7 @@ export const pipelineMutations = {
   async salesPipelinesUseTemplate(
     _root,
     { templateId, boardId }: { templateId: string; boardId?: string },
-    { models, user, subdomain }: IContext,
+    { subdomain }: IContext,
   ) {
     // Call templateUse mutation from template_api which will delegate back to us via TRPC
     const result = await sendTRPCMessage({

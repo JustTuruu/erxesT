@@ -28,19 +28,6 @@ const TEMPLATE_SAVE_FROM = gql`
   }
 `;
 
-interface SaveAsTemplateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: {
-    name: string;
-    description?: string;
-    status?: string;
-  }) => void;
-  loading?: boolean;
-  title?: string;
-  entityName?: string; // "board", "pipeline", etc.
-}
-
 export interface UseSaveAsTemplateOptions {
   contentType: string;
   onSuccess?: (data: any) => void;
@@ -82,16 +69,35 @@ export const useSaveAsTemplate = ({
 };
 
 export const SaveAsTemplateForm = ({
-  open,
-  onOpenChange,
-  onSubmit,
-  loading = false,
+  trigger,
+  contentType,
+  contentId,
   title = 'Save as Template',
-  entityName = 'item',
-}: SaveAsTemplateFormProps) => {
+  onSuccess,
+  onError,
+}: {
+  trigger: React.ReactNode;
+  contentType: string;
+  contentId: string;
+  title?: string;
+  onSuccess?: (data: any) => void;
+  onError?: (error: Error) => void;
+}) => {
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('active');
+
+  const { saveAsTemplate, loading } = useSaveAsTemplate({
+    contentType,
+    onSuccess: (data) => {
+      setOpen(false);
+      onSuccess?.(data);
+    },
+    onError,
+  });
+
+  const entityName = contentType.split(':')[1] || 'item';
 
   useEffect(() => {
     if (!open) {
@@ -105,22 +111,26 @@ export const SaveAsTemplateForm = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    onSubmit({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      status,
-    });
+    saveAsTemplate(
+      {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        status,
+      },
+      contentId,
+    );
   };
 
   const handleCancel = () => {
     setName('');
     setDescription('');
     setStatus('active');
-    onOpenChange(false);
+    setOpen(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger>{trigger}</Sheet.Trigger>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

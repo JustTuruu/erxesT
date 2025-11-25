@@ -65,18 +65,10 @@ export const BoardsList = () => {
 const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const [activeBoardId] = useQueryState('activeBoardId');
   const [, setBoardId] = useQueryState('boardId');
-  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   const isActive = board._id === activeBoardId;
 
   const { removeBoard, loading: removeLoading } = useBoardRemove();
-
-  const { saveAsTemplate, loading: saveTemplateLoading } = useSaveAsTemplate({
-    contentType: 'sales:board',
-    onSuccess: () => {
-      setTemplateDialogOpen(false);
-    },
-  });
 
   const { confirm } = useConfirm();
 
@@ -86,14 +78,6 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
     }).then(() => {
       removeBoard({ variables: { _id: boardId } });
     });
-  };
-
-  const onSaveAsTemplate = (data: {
-    name: string;
-    description?: string;
-    status?: string;
-  }) => {
-    saveAsTemplate(data, board._id);
   };
 
   return (
@@ -112,13 +96,15 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
             isActive ? 'bg-primary/20' : 'bg-gray-100'
           } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
         >
-          <button
-            onClick={() => setTemplateDialogOpen(true)}
-            className="text-gray-400 hover:text-green-500 p-1 rounded transition-colors"
-            title="Save as Template"
-          >
-            <IconTemplate className="w-4 h-4" />
-          </button>
+          <SaveAsTemplateForm
+            trigger={
+              <button title="Save as Template">
+                <IconTemplate className="w-4 h-4" />
+              </button>
+            }
+            contentType="sales:board"
+            contentId={board._id}
+          />
           <button
             onClick={() => setBoardId(board._id)}
             className="text-gray-400 hover:text-blue-500 p-1 rounded transition-colors"
@@ -134,14 +120,6 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
           </button>
         </div>
       </div>
-      <SaveAsTemplateForm
-        open={templateDialogOpen}
-        onOpenChange={setTemplateDialogOpen}
-        onSubmit={onSaveAsTemplate}
-        loading={saveTemplateLoading}
-        title="Save Board as Template"
-        entityName="board"
-      />
     </>
   );
 };

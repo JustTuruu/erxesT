@@ -48,18 +48,10 @@ export const PipelineMoreColumnCell = ({
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const [, setOpen] = useQueryState('pipelineId');
-  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
-
-  const { saveAsTemplate, loading: saveTemplateLoading } = useSaveAsTemplate({
-    contentType: 'sales:pipeline',
-    onSuccess: () => {
-      setTemplateDialogOpen(false);
-    },
-  });
 
   const { _id, status, name } = cell.row.original;
 
@@ -115,14 +107,6 @@ export const PipelineMoreColumnCell = ({
     });
   };
 
-  const onSaveAsTemplate = (data: {
-    name: string;
-    description?: string;
-    status?: string;
-  }) => {
-    saveAsTemplate(data, _id);
-  };
-
   return (
     <>
       <Popover>
@@ -154,12 +138,15 @@ export const PipelineMoreColumnCell = ({
                   </>
                 )}
               </Command.Item>
-              <Command.Item
-                value="saveAsTemplate"
-                onSelect={() => setTemplateDialogOpen(true)}
-              >
-                <IconTemplate /> Save as Template
-              </Command.Item>
+              <SaveAsTemplateForm
+                trigger={
+                  <Command.Item value="saveAsTemplate">
+                    <IconTemplate /> Save as Template
+                  </Command.Item>
+                }
+                contentType="sales:pipeline"
+                contentId={_id}
+              />
               <Command.Item value="productConfig">
                 <IconSettings /> Product config
               </Command.Item>
@@ -174,14 +161,6 @@ export const PipelineMoreColumnCell = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <SaveAsTemplateForm
-        open={templateDialogOpen}
-        onOpenChange={setTemplateDialogOpen}
-        onSubmit={onSaveAsTemplate}
-        loading={saveTemplateLoading}
-        title="Save Pipeline as Template"
-        entityName="pipeline"
-      />
     </>
   );
 };

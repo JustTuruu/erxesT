@@ -123,7 +123,6 @@ export const templateMutations = {
       throw new Error('Invalid contentType format. Expected: plugin:type');
     }
 
-    // Call source plugin via TRPC to get template data
     const result = await sendTRPCMessage({
       subdomain,
       pluginName,
