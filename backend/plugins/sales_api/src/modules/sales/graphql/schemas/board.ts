@@ -48,5 +48,4 @@ export const mutations = `
   salesBoardsRemove(_id: String!): JSON
   salesBoardItemUpdateTimeTracking(_id: String!, status: String!, timeSpent: Int!, startDate: String): JSON
   salesBoardItemsSaveForGanttTimeline(items: JSON, links: JSON): String
-  salesBoardsUseTemplate(templateId: String!): JSON
 `;

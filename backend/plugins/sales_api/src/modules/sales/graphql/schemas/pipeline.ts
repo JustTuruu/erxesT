@@ -109,5 +109,4 @@ export const mutations = `
   salesPipelinesRemove(_id: String!): JSON
   salesPipelinesArchive(_id: String!): JSON
   salesPipelinesCopied(_id: String!): JSON
-  salesPipelinesUseTemplate(templateId: String!, boardId: String): JSON
 `;

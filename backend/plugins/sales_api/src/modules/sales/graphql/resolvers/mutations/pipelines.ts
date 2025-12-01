@@ -162,29 +162,4 @@ export const pipelineMutations = {
 
     return copied;
   },
-
-  /**
-   * Create pipeline from template
-   */
-  async salesPipelinesUseTemplate(
-    _root,
-    { templateId, boardId }: { templateId: string; boardId?: string },
-    { subdomain }: IContext,
-  ) {
-    // Call templateUse mutation from template_api which will delegate back to us via TRPC
-    const result = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'template',
-      method: 'mutation',
-      module: 'templates',
-      action: 'use',
-      input: {
-        _id: templateId,
-        contentType: 'sales:pipeline',
-        boardId,
-      },
-    });
-
-    return result;
-  },
 };

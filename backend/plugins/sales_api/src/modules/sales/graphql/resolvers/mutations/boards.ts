@@ -1,7 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IBoard, IBoardDocument } from '~/modules/sales/@types';
-import { IPipelineDocument, IStageDocument } from '~/modules/sales/@types';
 
 export const boardMutations = {
   /**
@@ -110,28 +109,5 @@ export const boardMutations = {
     await models.Deals.bulkWrite(bulkOps);
 
     return 'Success';
-  },
-
-  /**
-   * Create board from template
-   */
-  async salesBoardsUseTemplate(
-    _root,
-    { templateId }: { templateId: string },
-    { subdomain }: IContext,
-  ) {
-    const result = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'template',
-      method: 'mutation',
-      module: 'templates',
-      action: 'use',
-      input: {
-        _id: templateId,
-        contentType: 'sales:board',
-      },
-    });
-
-    return result;
   },
 };
